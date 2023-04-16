@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.12)
+project(embutil)
+set(EXECUTABLE_NAME "embutil")
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+add_library(${EXECUTABLE_NAME} STATIC ${SOURCES})
+set_property(TARGET ${EXECUTABLE_NAME} PROPERTY CXX_STANDARD 11)
+target_include_directories(${EXECUTABLE_NAME} PUBLIC src)
