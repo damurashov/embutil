@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.12)
+project(snippet_lib)
+include_directories(".")
+file(GLOB SOURCES "*.cpp")
+add_executable(snippet_lib ${SOURCES})
+set_property(TARGET snippet_lib PROPERTY CXX_STANDARD 11)
+add_compile_options(snippet_lib PUBLIC "-ggdb")
+target_link_libraries(snippet_lib PUBLIC pthread)
