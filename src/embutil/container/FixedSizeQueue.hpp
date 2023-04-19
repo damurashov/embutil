@@ -27,6 +27,58 @@ private:
 	using MemoryChunk = std::uint8_t[sizeof(T)];
 
 public:
+	template <class OwnerType, class ItemType>
+	struct Iterator {
+
+		inline friend bool operator!=(const Iterator &aLhs, const Iterator &aRhs)
+		{
+			return aLhs.position != aRhs.position;
+		}
+
+		OwnerType &owner;
+		std::size_t position;
+
+		ItemType &operator*()
+		{
+			return *reinterpret_cast<ItemType *>(owner.storage[owner.absolutePosition(position)]);
+		}
+
+		/// Pre-increment overload
+		Iterator &operator++()
+		{
+			++position;
+			return *this;
+		}
+
+		Iterator operator++(int)
+		{
+			auto iterator = *this;
+			++position;
+
+			return iterator;
+		}
+	};
+
+	Iterator<FixedSizeQueue<T, N>, T> begin()
+	{
+		return {*this, popPosition};
+	}
+
+	Iterator<FixedSizeQueue<T, N>, T> end()
+	{
+		return {*this, pushPosition};
+	}
+
+	Iterator<const FixedSizeQueue<T, N>, const T> cbegin() const
+	{
+		return {*this, popPosition};
+	}
+
+	Iterator<const FixedSizeQueue<T, N>, const T> cend() const
+	{
+		return {*this, pushPosition};
+	}
+
 	void forcePush(const T &aInstance)
 	{
 		if (!tryPush(aInstance)) {
@@ -76,22 +128,22 @@ public:
 	}
 
 	/// Number of elements stored in the queue
-	std::size_t count()
+	std::size_t count() const
 	{
 		return pushPosition - popPosition;
 	}
 
 private:
 	/// Implements fast modulo `a % 2^N == a & (2^N - 1)`
-	std::size_t absolutePosition(std::size_t aAccumulatedPosition)
+	std::size_t absolutePosition(std::size_t aAccumulatedPosition) const
 	{
 		return aAccumulatedPosition & (N - 1);
 	}
 
 private:
 	std::array<MemoryChunk, N> storage;
-	std::size_t popPosition;
-	std::size_t pushPosition;
+	std::size_t popPosition = 0;
+	std::size_t pushPosition = 0;
 };
 
 }  // namespace Ct
